@@ -1,0 +1,63 @@
+idée : 
+Normaliser les embeddings
+
+est ce que lors de la demande d'un utilisateur à communique avec le chatbot, on lui demande directement ce qui l'interesse : ça peux aider et donner plus de contexte ? comment utiliser ce contexte
+12:09 PM
+Claude a répondu : Oui c'est une très bonne pratique — c'est ce qu'on appelle le profiling utilisateur.
+
+Oui c'est une très bonne pratique — c'est ce qu'on appelle le profiling utilisateur. Par exemple :
+
+"Bonjour ! Je suis [bénévole / partenaire entreprise / association bénéficiaire / particulier]"
+
+Comment utiliser ce contexte :
+
+Option 1 — Filtrer les chunks Qdrant par profil
+python
+
+# Tagger tes chunks au moment de l'indexation
+payload={
+    "texte": chunk,
+    "profil": ["benevole", "particulier"]  # à qui ce chunk est destiné
+}
+
+# Filtrer au moment de la recherche
+filter = models.Filter(
+    must=[models.FieldCondition(
+        key="profil",
+        match=models.MatchAny(any=[profil_utilisateur])
+    )]
+)
+
+Option 2 — Injecter le profil dans le prompt LLM
+python
+
+prompt = f"""
+Tu es un assistant pour Les Bricos du Cœur.
+Tu parles à un {profil_utilisateur}.
+Adapte ta réponse en conséquence.
+
+Contexte : {chunks}
+Question : {question}
+"""
+
+Option 3 — Les deux combinées — filtrer les chunks ET adapter le ton du LLM.
+
+Pour ton cas je te conseille l'option 2 pour commencer — c'est simple à implémenter et ça améliore déjà la qualité des réponses sans modifier ton indexation.
+
+
+
+cette apres midi : go tester : contexte = """
+- Les chantiers sont accessibles à toutes et à tous...
+- Pour faire un don de matériel : outils, peintures...  
+- Pas besoin de compétence particulière pour rejoindre...
+"""
+
+prompt = f"""
+Tu es un assistant pour Les Bricos du Cœur.
+Réponds à la question en utilisant uniquement le contexte fourni.
+Si tu ne trouves pas la réponse, dis-le clairement.
+
+Contexte : {contexte}
+Question : {question}
+"""
+

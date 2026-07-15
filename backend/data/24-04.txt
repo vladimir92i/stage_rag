@@ -1,0 +1,16 @@
+ordre :
+1) interface chainlit
+
+2) log des interactions,bien pas bien, langfuse ou ragas
+
+3) stocker les interactions (postgre, SQLite, json)
+
+
+idée :
+
+
+
+appeler les enchanteurs pour demander si c'est possible l'intégration, 
+
+
+
