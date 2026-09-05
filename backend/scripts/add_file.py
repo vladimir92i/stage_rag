@@ -6,18 +6,12 @@ from services.qdrant import insert_vectors, create_collection
 import httpx
 import numpy as np
 import uuid
-<<<<<<< HEAD
 import re
 from qdrant_client import QdrantClient,models
 import json
 
 MODEL_URL_BGE = "http://127.0.0.1:8001/embed/bge"
 model_url_e5 = "http://127.0.0.1:8001/embed/e5"
-=======
-from qdrant_client import QdrantClient,models
-import json
-model_url = "http://127.0.0.1:8000/embed"
->>>>>>> origin/main
 # how to req
 # r = httpx.post(model, data={'key': 'value'})
 
@@ -27,11 +21,7 @@ chunk_150 = "chunk_150"
 chunk_100 = "chunk_100"
 chunk_50 = "chunk_50"
 
-<<<<<<< HEAD
 plaquette_institutionnelle = "../data/plaquette_institutionnelle.txt"
-=======
-
->>>>>>> origin/main
 page_de_base = '../data/page_de_base.json'
 conv_achat = '../data/convention_achat.txt'
 
@@ -65,11 +55,7 @@ def sentence_chunk(text, max_words=50):
 
 def transform_text_to_embedding(texte:str)->list[float]:
     response = httpx.post(
-<<<<<<< HEAD
         MODEL_URL_BGE,
-=======
-        model_url,
->>>>>>> origin/main
         json={"text": texte },
         timeout=30.0
     )
@@ -107,7 +93,6 @@ def parse_convention(text: str)->list[dict]:
     
     return chunks
 
-<<<<<<< HEAD
 def parse_plaquette(file_url: str)->list[dict]:
     with open(file_url, "r", encoding="utf-8") as file:
         data = file.read()
@@ -124,8 +109,6 @@ def parse_plaquette(file_url: str)->list[dict]:
     
     return paragraphes
     
-=======
->>>>>>> origin/main
 
 def page_de_base_to_qdrant(my_coll:str,vector_size:int, max_word:int):
     points = []
@@ -180,7 +163,6 @@ def conv_achat_to_qdrant(my_coll:str,vector_size:int, max_word:int):
     insert_vectors(points, my_coll)
     print(f"{len(points)} points ajoutés dans Qdrant")
 
-<<<<<<< HEAD
 def plaquette_to_qdrant(my_coll:str,vector_size:int):
     create_collection(my_coll,vector_size)
     points = []
@@ -210,9 +192,5 @@ page_de_base_to_qdrant("bge-m3",1024,50)
 conv_achat_to_qdrant("bge-m3",1024,100)
 plaquette_to_qdrant("bge-m3",1024)
 
-=======
-#page_de_base_to_qdrant("camembert",50)
-conv_achat_to_qdrant("camembert3",768,100)
->>>>>>> origin/main
   
 # txt = "9.1 Chaque partie conservera la propriété totale et exclusive de ses connaissances antérieures et des éléments (données, informations, dénomination sociale, logo…) communiqués dans le cadre de la mise en œuvre de la présente convention. 9.2 Chaque partie détient des droits de propriété exclusifs sur ses marques, sa dénomination sociale et son logo (cf.annexe). Chaque partie bénéficie d'un droit d'usage non exclusif de la marque et du logo de l'autre Partie aux seules fins mentionnées par la présente Convention. Dans ce cadre, chacune des Parties s'engage à respecter les règles techniques définies par l'autre Partie pour l'utilisation de sa marque et de son logo, et de solliciter en amont de toute utilisation l’autre partie pour accord. 9.3 La présente Convention n'a pas pour effet d'entraîner un transfert de propriété des éléments fournis (données, informations, dénomination sociale, logo…) par l'une des Parties à l'autre Partie. Chacune des Parties s’interdit toute utilisation de ceux-ci sans le consentement préalable écrit de l'autre Partie. 9.4 Les Parties s’accordent sur les moyens à mettre en œuvre pour améliorer la communication relative à la présente convention. Sauf décision contraire des deux Parties, elles s’engagent à mentionner dans toute publication ou action de communication le soutien financier ou la contribution de chacune des Parties aux actions menées dans le cadre de la présente Convention, y compris lors d’une conférence ou d’un séminaire. 9.5 Les Parties s’engagent mutuellement à faire figurer leur logo respectif sur tout support de diffusion relatif au partenariat objet de la présente. En cas d’utilisation des données (logo, dénomination, support de communication etc.), hors champ de la convention, d’une des parties par l’autre partie, cette dernière se réserve le droit d’exercer son opposition à cette utilisation par tous moyens écrits. Ce droit d’opposition entraîne la suppression immédiate et au plus tard, dans les 48 heures, La Quincaillerie Solidaire - Les Bricos du Coeur Association loi 1901 135 rue Sadi Carnot - 59790 Ronchin ✉ contact@laquincaillerie.org - 5 - du support litigieux."
