@@ -3,12 +3,8 @@ pydantic>=2.7.0,<3.0.0
 qdrant-client
 httpx
 nltk
-<<<<<<< HEAD
 sentence-transformers
 FlagEmbedding
 docx
 re
 ollama
-=======
-sentence-transformers
->>>>>>> origin/main
