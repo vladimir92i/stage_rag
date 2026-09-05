@@ -37,11 +37,7 @@ def search_nearest_neighbors(vector: list[float], collection_name: str):
 
     return client.query_points(collection_name=collection_name, query=vector,limit=3)
 
-<<<<<<< HEAD
 
-
-=======
->>>>>>> origin/main
 # sentences = ["Je suis une structure et souhaite être soutenue par les Bricos"]
 
 # response = httpx.post(model, json={'text': sentences[0]},timeout=30.0)
