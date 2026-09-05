@@ -3,12 +3,14 @@ sys.path.append("C:/Users/vlad/Documents/Cours B3/Notes stage/RAG_Bot/backend")
 from nltk.tokenize import sent_tokenize
 import nltk
 from services.qdrant import insert_vectors, create_collection
+from services.log import log_vectorisation
 import httpx
 import numpy as np
 import uuid
 import re
 from qdrant_client import QdrantClient,models
 import json
+import time
 
 MODEL_URL_BGE = "http://127.0.0.1:8001/embed/bge"
 model_url_e5 = "http://127.0.0.1:8001/embed/e5"
@@ -111,6 +113,7 @@ def parse_plaquette(file_url: str)->list[dict]:
     
 
 def page_de_base_to_qdrant(my_coll:str,vector_size:int, max_word:int):
+    debut = time.perf_counter()
     points = []
     create_collection(my_coll,vector_size)
     with open(page_de_base, "r", encoding="utf-8") as f:
@@ -132,11 +135,13 @@ def page_de_base_to_qdrant(my_coll:str,vector_size:int, max_word:int):
             })
 
     insert_vectors(points,my_coll)
+    log_vectorisation("page_de_base", len(points), time.perf_counter() - debut)
     print(f"{len(points)} points ajoutés dans Qdrant")
 
 
 
 def conv_achat_to_qdrant(my_coll:str,vector_size:int, max_word:int):
+    debut = time.perf_counter()
     create_collection(my_coll,vector_size)
     points = []
     with open(conv_achat, "r", encoding="utf-8") as file:
@@ -161,9 +166,11 @@ def conv_achat_to_qdrant(my_coll:str,vector_size:int, max_word:int):
             })
     
     insert_vectors(points, my_coll)
+    log_vectorisation("convention_achat", len(points), time.perf_counter() - debut)
     print(f"{len(points)} points ajoutés dans Qdrant")
 
 def plaquette_to_qdrant(my_coll:str,vector_size:int):
+    debut = time.perf_counter()
     create_collection(my_coll,vector_size)
     points = []
     
@@ -185,6 +192,7 @@ def plaquette_to_qdrant(my_coll:str,vector_size:int):
         })
     
     insert_vectors(points, my_coll)
+    log_vectorisation("plaquette_institutionnelle", len(points), time.perf_counter() - debut)
     print(f"{len(points)} points ajoutés dans Qdrant")
     
 

@@ -1,8 +1,10 @@
 from ollama import chat
 from ollama import ChatResponse
 import httpx
+import time
 from qdrant_client import QdrantClient
 from services.qdrant import search_nearest_neighbors
+from services.log import log_vectorisation, log_voisins
 
 EMBED_URL = "http://127.0.0.1:8001/embed/bge"
 client = QdrantClient(url="http://localhost:6333")
@@ -20,14 +22,18 @@ def transform_text_to_embedding(model_url:str, texte:str)->list[float]:
 
 def generate_response(question: str, top_k: int = 3, embed_timeout: int = 120):
     try:
+        debut = time.perf_counter()
         vector = transform_text_to_embedding(EMBED_URL, question)
+        log_vectorisation("question", 1, time.perf_counter() - debut)
     except Exception as e:
         print("Embedding error:", e)
         return "Désolé, problème d'embeddings — réessaye plus tard."
 
     try:
+        debut = time.perf_counter()
         resp = search_nearest_neighbors(vector, COLLECTION_NAME)
         chunks = resp.points if resp and hasattr(resp, "points") else []
+        log_voisins(question, chunks, time.perf_counter() - debut)
     except Exception as e:
         print("Qdrant search error:", e)
         chunks = []
