@@ -1,10 +1,28 @@
-fastapi[standard]>=0.113.0,<0.114.0
-pydantic>=2.7.0,<3.0.0
-qdrant-client
-httpx
-nltk
-sentence-transformers
-FlagEmbedding
-docx
-re
-ollama
+# Dépendances du RAG Bot — Les Bricos du Cœur
+# Versions alignées sur uv.lock et pyproject.toml.
+
+# API d'embedding (backend/app/api.py)
+fastapi[standard]>=0.135.3
+pydantic>=2.13.0
+
+# Modèles d'embedding : BGE-M3 (bge) et multilingual-e5 (e5)
+FlagEmbedding>=1.4.0
+sentence-transformers>=5.4.1
+
+# Base vectorielle et appels HTTP entre services
+qdrant-client>=1.17.1
+httpx>=0.28.1
+numpy>=2.4.4
+
+# Découpage en phrases (backend/scripts/add_file.py)
+# Nécessite en plus le corpus punkt : python -c "import nltk; nltk.download('punkt_tab')"
+nltk>=3.9.4
+
+# Génération de réponses via Ollama (backend/services/llm.py)
+ollama>=0.6.1
+
+# Interface conversationnelle (backend/app.py)
+chainlit>=2.11.1
+
+# Extraction du texte des PDF (backend/scripts/ocr.py)
+pymupdf>=1.27.2.2
