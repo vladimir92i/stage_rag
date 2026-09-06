@@ -40,6 +40,7 @@ def sentence_chunk(text, max_words=50):
     renvoie une liste de phrase qui font le max word
     """
     text = text.replace(";", ".")
+    text = text.replace("-", ".")
     sentences = sent_tokenize(text)
     chunks, buffer, length = [], [], 0
 
