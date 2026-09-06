@@ -1,70 +1,84 @@
-# RAG Bot
+# RAG Bot — Les Bricos du Cœur
 
-## Description
-RAG Bot est un assistant basé sur la Récupération Augmentée par Génération (RAG) pour répondre aux questions en utilisant des documents sources.
+Assistant documentaire conversationnel pour l'association **Les Bricos du Cœur**.
+Il répond aux questions en s'appuyant uniquement sur les documents internes de
+l'association, sans jamais inventer : recherche des passages pertinents dans une
+base vectorielle, puis génération de la réponse à partir de ces seuls passages
+(RAG — *Retrieval Augmented Generation*).
+
+Projet réalisé dans le cadre de l'épreuve **E2** du titre professionnel
+« Développeur en Intelligence Artificielle » (RNCP 37827).
+
+## Chaîne technique
+
+| Étape | Outil |
+|---|---|
+| Découpage des documents | NLTK — `backend/scripts/add_file.py` |
+| Vectorisation | **BAAI/bge-m3** (1024 dimensions) servi par une API FastAPI, port 8001 |
+| Stockage et recherche | **Qdrant**, collection `bge-m3`, distance cosinus, port 6333 |
+| Génération de la réponse | **Ollama**, modèle `qwen3:1.7b`, port 11434 |
+| Interface | **Chainlit**, port 8000 |
+
+Tout s'exécute en local. Aucune donnée ne sort de la machine, aucune clé d'API
+n'est nécessaire.
 
 ## Prérequis
-- Python 3.8+
-- pip (gestionnaire de paquets Python)
 
-## Installation
+- **Python 3.12** — voir `.python-version`. Le projet ne s'installe pas en 3.14.
+- **Docker**, pour exécuter Qdrant.
+- **Ollama**, avec le modèle `qwen3:1.7b`.
 
-1. Cloner le projet :
+## Démarrage rapide
+
 ```bash
-git clone <repository-url>
-cd RAG_Bot
+py -V:3.12 -m venv .venv
+.venv\Scripts\activate
+pip install -r backend/requirements.txt
+python -c "import nltk; nltk.download('punkt_tab')"
 ```
 
-2. Créer un environnement virtuel :
-```bash
-python -m venv venv
-```
+Puis, dans des terminaux séparés :
 
-3. Activer l'environnement virtuel :
-- **Windows** :
 ```bash
-venv\Scripts\activate
-```
-- **Linux/Mac** :
-```bash
-source venv/bin/activate
-```
-
-4. Installer les dépendances :
-```bash
-pip install -r requirements.txt
-```
-
-## Utilisation
-
-Lancer l'application :
-avoir qdrant de lancer avec la bdd sinon lancer les fichier dans script
-```bash
-à la racine : 
+docker run -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant
 ollama serve
 
-dans backend :
-pour lancer chainlit :
-chainlit run app.py -w
-
-dans app
-pour lancer l'api d'embedding :
-fastapi dev --port 8001 api.py
-
+cd backend/app && fastapi dev --port 8001 api.py
+cd backend/scripts && PYTHONPATH=.. python add_file.py
+cd backend && chainlit run app.py -w
 ```
 
-## Configuration
-Modifier les fichiers de configuration dans le dossier `config/` si nécessaire.
+L'interface est alors disponible sur <http://localhost:8000>.
+
+## Documentation
+
+**[`backend/README.md`](backend/README.md)** contient la documentation complète :
+interconnexions entre services, gestion des accès, procédure d'installation
+détaillée, procédure de test, dépendances, données utilisées et choix techniques.
 
 ## Structure du projet
+
 ```
-RAG_Bot/
-├── main.py
-├── requirements.txt
-├── config/
-├── src/
-└── README.md
+.
+├── README.md              ce fichier
+├── pyproject.toml         dépendances (uv)
+├── uv.lock                verrou de dépendances
+├── .python-version        3.12
+├── docker-compose.yml
+├── main.py                point d'entrée généré par uv, non utilisé
+├── chainlit.md            écran d'accueil de l'interface
+└── backend/
+    ├── README.md          documentation complète
+    ├── Dockerfile
+    ├── requirements.txt
+    ├── app.py             interface Chainlit
+    ├── app/api.py         API d'embedding (FastAPI)
+    ├── services/          orchestration RAG, Qdrant, journalisation
+    ├── models/            bancs d'essai des modèles d'embedding
+    ├── scripts/           ingestion des documents, extraction PDF
+    └── data/              documents sources
 ```
 
 ## Support
-Pour toute question ou problème, veuillez contacter l'équipe de développement.
+
+Pour toute question sur l'association : `chantier@bricosducoeur.org`
