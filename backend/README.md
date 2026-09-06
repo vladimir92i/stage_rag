@@ -41,9 +41,9 @@ Le parcours d'une question :
 1. **Chainlit** (`backend/app.py`) reçoit le message et appelle `generate_response()`.
 2. **`services/llm.py`** envoie la question à l'**API d'embedding** (`POST /embed/bge`),
    qui la transforme en vecteur de 1024 dimensions avec BGE-M3.
-3. Ce vecteur sert à interroger **Qdrant**, qui renvoie les 3 fragments les plus
+3. Ce vecteur sert à interroger **Qdrant**, qui renvoie les 3 chunks les plus
    proches par distance cosinus.
-4. Ces fragments sont injectés dans un prompt contraint, envoyé à **Ollama**
+4. Ces chunks sont injectés dans un prompt contraint, envoyé à **Ollama**
    (`qwen3:1.7b`), dont la réponse remonte jusqu'à Chainlit.
 5. Chaque vectorisation et chaque recherche sont journalisées
    (`services/log.py` → `backend/logs/vectorisation_AAAA-MM-JJ.log`).
@@ -83,8 +83,7 @@ assumé lié à son contexte de déploiement.**
 
 ## 3. Dépendances
 
-**Python 3.12 obligatoire** — voir `.python-version`. Le projet ne s'installe pas
-en 3.14 : `chainlit` exige `>=3.10,<3.14`.
+**Python 3.12 **
 
 Onze dépendances directes, listées à l'identique dans `backend/requirements.txt`
 et `pyproject.toml` :
@@ -172,15 +171,14 @@ prend plusieurs minutes. Les suivants lisent le cache local.
 
 **2 — Ingestion des documents** (une seule fois, ou après modification des données)
 
+Depuis la racine du dépôt, sans variable d'environnement particulière :
+
 ```bash
-cd backend/scripts
-PYTHONPATH=.. python add_file.py       # Linux / macOS
-set PYTHONPATH=..&& python add_file.py  # Windows cmd
-$env:PYTHONPATH=".."; python add_file.py  # PowerShell
+python backend/scripts/add_file.py
 ```
 
-`PYTHONPATH` est nécessaire parce que le script importe `services.qdrant` alors
-que ses chemins de données sont relatifs à `backend/scripts/`.
+Le script fonctionne depuis n'importe quel répertoire courant : il calcule
+lui-même l'emplacement de `backend/` et de `data/` à partir de `__file__`.
 
 Sortie attendue :
 
@@ -198,6 +196,28 @@ chainlit run app.py -w
 ```
 
 Puis <http://localhost:8000>.
+
+---
+
+## 5 bis. Configuration
+
+Adresses, noms et dimensions sont définis en un seul endroit,
+`services/config.py`, et surchargeables par variable d'environnement :
+
+| Variable | Défaut | Rôle |
+|---|---|---|
+| `API_EMBEDDING_HOST` | `127.0.0.1` | hôte de l'API d'embedding |
+| `API_EMBEDDING_PORT` | `8001` | port de l'API d'embedding |
+| `QDRANT_URL` | `http://localhost:6333` | adresse de Qdrant |
+| `QDRANT_COLLECTION` | `bge-m3` | collection interrogée |
+| `VECTOR_SIZE` | `1024` | dimension des vecteurs |
+| `OLLAMA_MODEL` | `qwen3:1.7b` | modèle de génération |
+
+Exemple, pour pointer vers un Qdrant conteneurisé :
+
+```bash
+QDRANT_URL=http://qdrant:6333 python backend/scripts/add_file.py
+```
 
 ---
 
@@ -227,14 +247,23 @@ curl http://localhost:6333/collections/bge-m3
 Attendu : `"status": "green"`, `"points_count": 55`, `"size": 1024`,
 `"distance": "Cosine"`.
 
-**Test 3 — chaîne complète**
+**Test 3 — la recherche de voisins remonte des fragments pertinents**
+
+```bash
+python backend/main.py
+```
+
+Affiche les 3 voisins les plus proches avec leur titre, leur texte et leur
+score. L'option `-c` permet de viser une autre collection.
+
+**Test 4 — chaîne complète**
 
 Dans Chainlit, poser une des trois questions de démarrage, par exemple
 _« Quelle sont les valeurs de votre association »_. La réponse doit citer
 l'entraide, le partage, la proximité et l'authenticité — contenu de la section
 `## NOS VALEURS` de la plaquette.
 
-**Test 4 — la journalisation fonctionne**
+**Test 5 — la journalisation fonctionne**
 
 Après une question, `backend/logs/vectorisation_AAAA-MM-JJ.log` doit contenir
 une ligne `vectorisation` et une ligne `recherche` suivie de ses 3 voisins.
@@ -244,23 +273,23 @@ une ligne `vectorisation` et une ligne `recherche` suivie de ses 3 voisins.
 ## 7. Données utilisées
 
 Trois documents sont indexés dans la collection `bge-m3`, pour un total de
-**55 fragments** :
+**55 chunks** :
 
-| Fichier                               | Nature                                                            | Découpage                         | Fragments |
-| ------------------------------------- | ----------------------------------------------------------------- | --------------------------------- | --------- |
-| `data/page_de_base.json`              | contenu du site `bricosducoeur.org`, 7 paragraphes titrés         | `sentence_chunk`, `max_words=50`  | 12        |
-| `data/convention_achat.txt`           | convention d'achat partenaire, 13 sections (titres en majuscules) | `sentence_chunk`, `max_words=100` | 30        |
-| `data/plaquette_institutionnelle.txt` | plaquette de présentation, 13 sections (titres `##`)              | aucun — une section = un fragment | 13        |
+| Fichier                               | Nature                                                            | Découpage                         | chunks |
+| ------------------------------------- | ----------------------------------------------------------------- | --------------------------------- | ------ |
+| `data/page_de_base.json`              | contenu du site `bricosducoeur.org`, 7 paragraphes titrés         | `sentence_chunk`, `max_words=50`  | 12     |
+| `data/convention_achat.txt`           | convention d'achat partenaire, 13 sections (titres en majuscules) | `sentence_chunk`, `max_words=100` | 30     |
+| `data/plaquette_institutionnelle.txt` | plaquette de présentation, 13 sections (titres `##`)              | aucun — une section = un chunk    | 13     |
 
 Chaque point Qdrant porte un payload : `texte`, `titre`, `source`, `chunk_size`.
 
 **Découpage.** `sentence_chunk` remplace les points-virgules et les tirets par des
 points, segmente en phrases avec NLTK, puis regroupe les phrases tant que le
 cumul reste sous `max_words`. Elle ne coupe jamais à l'intérieur d'une phrase :
-une phrase plus longue que `max_words` donne donc un fragment hors seuil.
+une phrase plus longue que `max_words` donne donc un chunk hors seuil.
 
 Le remplacement du tiret vise les énumérations `; -` de la convention. Effet
-mesuré sur `convention_achat.txt` à `max_words=50` : les fragments dépassant le
+mesuré sur `convention_achat.txt` à `max_words=50` : les chunks dépassant le
 seuil passent de 6 à 2. Effet de bord accepté : les mots composés sont coupés
 dans le texte stocké (`ci-dessus` devient `ci.dessus`).
 
@@ -276,7 +305,7 @@ les versions `.pdf` et `.docx` de la plaquette dont le `.txt` a été extrait.
 .
 ├── README.md                  documentation racine
 ├── pyproject.toml             dépendances (uv)
-├── uv.lock                    verrou, 213 paquets
+├── uv.lock                    verrou, 190 paquets
 ├── .python-version            3.12
 ├── docker-compose.yml
 ├── main.py                    point d'entrée généré par uv, non utilisé
@@ -293,7 +322,8 @@ les versions `.pdf` et `.docx` de la plaquette dont le `.txt` a été extrait.
     ├── services/
     │   ├── llm.py             orchestration RAG + appel Ollama
     │   ├── qdrant.py          création de collection, insertion, recherche
-    │   └── log.py             journalisation des vectorisations
+    │   ├── log.py             journalisation des vectorisations
+    │   └── config.py          adresses et noms, source unique de vérité
     ├── models/
     │   ├── bge.py             banc d'essai BGE-M3
     │   └── e5.py              banc d'essai multilingual-e5
@@ -327,4 +357,4 @@ absente des documents.
 **Non retenu** : reranking, recherche hybride dense/lexicale, HyDE,
 authentification, historique de conversation en base. Ces pistes ont été
 identifiées mais écartées, faute de gain démontré à ce volume de données
-(55 fragments).
+(55 chunks).

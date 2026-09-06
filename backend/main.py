@@ -1,4 +1,10 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 from services.qdrant import search_nearest_neighbors
+from services.config import EMBED_BGE_URL, COLLECTION_NAME
 import httpx
 import argparse
 sent1 = "retour remboursement article Bricos du cœur politique"
@@ -9,8 +15,7 @@ sent5= "Le centre social de l'Hommelet, association partenaire, organise un chan
 sent6= "Puis je devenir partenaire ?"
 sent7 = "Qui peut devenir partenaire ?"
 
-model = "http://127.0.0.1:8001/embed/bge"
-model = "http://127.0.0.1:8000/embed"
+model = EMBED_BGE_URL
 chunk_150 = "chunk_150"
 chunk_100 = "chunk_100"
 chunk_50 = "chunk_50"
@@ -46,10 +51,10 @@ def send_sentence_and_print_nearest_neighbors(sentence:str,coll_name:str):
 sent = "quest ce que la quincaillerie solidare et quelles sont les valeurs de l'asso?"
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c","--collection", type=str)
+    parser.add_argument("-c","--collection", type=str, default=COLLECTION_NAME)
     args = parser.parse_args()
     # args.collection
-    send_sentence_and_print_nearest_neighbors(sent, "bge-m3")
+    send_sentence_and_print_nearest_neighbors(sent, COLLECTION_NAME)
     
     
     send_sentence_and_print_nearest_neighbors(sent7, args.collection)

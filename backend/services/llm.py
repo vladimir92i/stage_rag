@@ -5,11 +5,11 @@ import time
 from qdrant_client import QdrantClient
 from services.qdrant import search_nearest_neighbors
 from services.log import log_vectorisation, log_voisins
+from services.config import EMBED_BGE_URL, QDRANT_URL, OLLAMA_MODEL, COLLECTION_NAME
 
-EMBED_URL = "http://127.0.0.1:8001/embed/bge"
-client = QdrantClient(url="http://localhost:6333")
-MODEL_NAME = "qwen3:1.7b"  # change si besoin
-COLLECTION_NAME = "bge-m3"
+EMBED_URL = EMBED_BGE_URL
+client = QdrantClient(url=QDRANT_URL)
+MODEL_NAME = OLLAMA_MODEL
 
 def transform_text_to_embedding(model_url:str, texte:str)->list[float]:
         

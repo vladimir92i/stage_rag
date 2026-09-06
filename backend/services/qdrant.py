@@ -3,12 +3,12 @@ from qdrant_client.models import VectorParams, Distance, PointStruct
 import httpx
 import numpy as np
 import uuid
+from services.config import QDRANT_URL
 
-model_url = "http://127.0.0.1:8000/embed"
 # how to req
 #r = httpx.post(model, data={'key': 'value'})
 
-client = QdrantClient(url="http://localhost:6333")
+client = QdrantClient(url=QDRANT_URL)
 
 def create_collection(name: str,vector_size:int):
     if not client.collection_exists(name):

@@ -37,14 +37,22 @@ pip install -r backend/requirements.txt
 python -c "import nltk; nltk.download('punkt_tab')"
 ```
 
-Puis, dans des terminaux séparés :
+Puis, un terminal par service :
 
 ```bash
+# 1. base vectorielle
 docker run -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant
+
+# 2. génération
 ollama serve
 
+# 3. API d'embedding
 cd backend/app && fastapi dev --port 8001 api.py
-cd backend/scripts && PYTHONPATH=.. python add_file.py
+
+# 4. ingestion des documents — une seule fois, depuis la racine
+python backend/scripts/add_file.py
+
+# 5. interface
 cd backend && chainlit run app.py -w
 ```
 
@@ -73,7 +81,7 @@ détaillée, procédure de test, dépendances, données utilisées et choix tech
     ├── requirements.txt
     ├── app.py             interface Chainlit
     ├── app/api.py         API d'embedding (FastAPI)
-    ├── services/          orchestration RAG, Qdrant, journalisation
+    ├── services/          orchestration RAG, Qdrant, journalisation, configuration
     ├── models/            bancs d'essai des modèles d'embedding
     ├── scripts/           ingestion des documents, extraction PDF
     └── data/              documents sources
