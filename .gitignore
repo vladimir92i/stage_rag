@@ -1,4 +1,47 @@
+
 __pycache__/
-logs/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
 .venv/
-*.pyc
+venv/
+env/
+
+# --- Journaux de vectorisation (services/log.py) ---
+# Générés à chaque exécution, ils n'ont pas à être versionnés.
+backend/logs/
+
+# --- Artefacts d'exécution Chainlit ---
+# Les fichiers de configuration .chainlit/config.toml et chainlit.md sont
+# versionnés volontairement ; seuls les fichiers produits à l'usage sont exclus.
+.files/
+.chainlit/*.db
+.chainlit/translations/*.local.json
+
+# --- Caches de modèles ---
+# BGE-M3 et multilingual-e5 sont téléchargés depuis Hugging Face au premier
+# lancement. Plusieurs Go : jamais dans Git.
+.cache/
+models_cache/
+
+# --- Données locales Qdrant ---
+qdrant_storage/
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Outils et éditeurs ---
+.vscode/
+.idea/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# --- Système ---
+Thumbs.db
+desktop.ini
+.DS_Store
