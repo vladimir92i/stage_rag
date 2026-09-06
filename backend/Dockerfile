@@ -1,12 +1,11 @@
-FROM python:3.14
+FROM python:3.12
 
-WORKDIR /backend
+WORKDIR /app
 
-COPY ./requirements.txt /backend/requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /backend/requirements.txt
+COPY . .
 
-COPY . /backend/app
-
-
-CMD ["fastapi", "run", "app/main.py", "--port", "80"]
+EXPOSE 8001
+CMD ["fastapi", "run", "app/api.py", "--port", "8001"]

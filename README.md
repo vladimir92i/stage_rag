@@ -58,6 +58,13 @@ cd backend && chainlit run app.py -w
 
 L'interface est alors disponible sur <http://localhost:8000>.
 
+## Conteneurisation
+
+`backend/Dockerfile` empaquette l'API d'embedding (port 8001). Qdrant utilise
+son image officielle, Ollama s'installe comme service système, et Chainlit se
+lance directement : il n'y a pas de `docker-compose.yml`, l'orchestration est
+manuelle. Détails en section 9 de la documentation.
+
 ## Documentation
 
 **[`backend/README.md`](backend/README.md)** contient la documentation complète :
@@ -72,7 +79,6 @@ détaillée, procédure de test, dépendances, données utilisées et choix tech
 ├── pyproject.toml         dépendances (uv)
 ├── uv.lock                verrou de dépendances
 ├── .python-version        3.12
-├── docker-compose.yml
 ├── main.py                point d'entrée généré par uv, non utilisé
 ├── chainlit.md            écran d'accueil de l'interface
 └── backend/

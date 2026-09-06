@@ -307,7 +307,6 @@ les versions `.pdf` et `.docx` de la plaquette dont le `.txt` a été extrait.
 ├── pyproject.toml             dépendances (uv)
 ├── uv.lock                    verrou, 190 paquets
 ├── .python-version            3.12
-├── docker-compose.yml
 ├── main.py                    point d'entrée généré par uv, non utilisé
 ├── chainlit.md                écran d'accueil Chainlit
 └── backend/
@@ -336,7 +335,41 @@ les versions `.pdf` et `.docx` de la plaquette dont le `.txt` a été extrait.
 
 ---
 
-## 9. Choix techniques
+## 9. Conteneurisation
+
+`backend/Dockerfile` empaquette **l'API d'embedding uniquement** : image
+`python:3.12`, dépendances installées depuis `requirements.txt`, port 8001
+exposé.
+
+```bash
+cd backend
+docker build -t ragbot-api .
+docker run -p 8001:8001 ragbot-api
+```
+
+**Ce qui n'est pas conteneurisé, et pourquoi :**
+
+- **Qdrant** dispose de son image officielle, utilisée telle quelle
+  (`docker run -p 6333:6333 qdrant/qdrant`). La réempaqueter n'apporterait rien.
+- **Ollama** s'installe comme service système et gère son propre cache de
+  modèles. Le conteneuriser imposerait de retélécharger `qwen3:1.7b` dans un
+  volume, sans bénéfice pour un usage local.
+- **Chainlit** est l'interface de développement et de démonstration ; elle est
+  lancée directement, sans conteneur.
+
+Il n'y a donc **pas de `docker-compose.yml`** : l'orchestration des quatre
+services se fait manuellement, comme décrit en section 5. Le conteneur de l'API
+doit alors joindre les autres services de l'hôte — voir les variables
+d'environnement de la section 5 bis.
+
+**Limite à connaître** : le modèle BGE-M3 n'est pas inclus dans l'image. Il est
+téléchargé depuis Hugging Face au premier démarrage du conteneur, ce qui
+suppose un accès réseau et allonge ce premier lancement. Monter un volume sur
+le cache Hugging Face évite de le retélécharger à chaque `docker run`.
+
+---
+
+## 10. Choix techniques
 
 **Modèles d'embedding comparés.** Trois modèles ont été essayés avant de
 trancher : `dangvantuan/sentence-camembert-base` (768 dimensions),
