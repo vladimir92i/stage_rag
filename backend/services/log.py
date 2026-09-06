@@ -1,7 +1,7 @@
 """Journalisation des appels de vectorisation.
 
 Chaque appel de vectorisation est tracé dans un fichier de log daté, avec
-l'horodatage, le nombre de fragments traités, le temps de calcul et, pour une
+l'horodatage, le nombre de chunks traités, le temps de calcul et, pour une
 recherche, les voisins les plus proches retournés.
 
 N'utilise que la bibliothèque standard.
@@ -26,12 +26,12 @@ if not logger.handlers:
     logger.propagate = False
 
 
-def log_vectorisation(source: str, nb_fragments: int, duree: float):
-    """Trace un appel de vectorisation : d'où viennent les fragments,
+def log_vectorisation(source: str, nb_chunks: int, duree: float):
+    """Trace un appel de vectorisation : d'où viennent les chunks,
     combien il y en avait, et combien de temps le calcul a pris."""
     logger.info(
-        "vectorisation | source=%s | fragments=%d | duree=%.3fs",
-        source, nb_fragments, duree,
+        "vectorisation | source=%s | chunk=%d | duree=%.3fs",
+        source, nb_chunks, duree,
     )
 
 

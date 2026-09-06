@@ -247,7 +247,7 @@ curl http://localhost:6333/collections/bge-m3
 Attendu : `"status": "green"`, `"points_count": 55`, `"size": 1024`,
 `"distance": "Cosine"`.
 
-**Test 3 — la recherche de voisins remonte des fragments pertinents**
+**Test 3 — la recherche de voisins remonte des chunks pertinents**
 
 ```bash
 python backend/main.py
