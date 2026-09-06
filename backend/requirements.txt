@@ -10,7 +10,7 @@ FlagEmbedding>=1.4.0
 sentence-transformers>=5.4.1
 
 # Base vectorielle et appels HTTP entre services
-qdrant-client>=1.17.1
+qdrant-client==1.17.1
 httpx>=0.28.1
 numpy>=2.4.4
 

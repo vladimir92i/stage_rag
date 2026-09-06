@@ -31,9 +31,10 @@ n'est nécessaire.
 ## Démarrage rapide
 
 ```bash
-py -V:3.12 -m venv .venv
+cd backend
+py -3.12 -m venv .venv
 .venv\Scripts\activate
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 python -c "import nltk; nltk.download('punkt_tab')"
 ```
 
@@ -47,7 +48,7 @@ docker run -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant
 ollama serve
 
 # 3. API d'embedding
-cd backend/app && fastapi dev --port 8001 api.py
+cd backend/app && fastapi dev --app api:app --port 8001
 
 # 4. ingestion des documents — une seule fois, depuis la racine
 python backend/scripts/add_file.py

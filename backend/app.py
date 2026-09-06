@@ -7,18 +7,16 @@ def on_chat_start():
 
 @cl.on_message
 async def main(message: cl.Message):
-    # Your custom logic goes here...
-    # llm_answer = generate_response(message.content)
-    # # Send a response back to the user
-    # await cl.Message(
-    #     content=f"Received: {llm_answer}",
-    # ).send()
+    status = cl.Message(content="Je recherche une réponse dans les documents...")
+    await status.send()
     try:
-        response = generate_response(message.content)
+        response = await cl.make_async(generate_response)(message.content)
         if not response:
             response = "Réponse vide (fallback)"
+        await status.remove()
         await cl.Message(content=str(response)).send()
     except Exception as e:
+        await status.remove()
         await cl.Message(content=f"Erreur: {e}").send()
     
 @cl.set_starters # type: ignore

@@ -6,13 +6,10 @@ BACKEND = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BACKEND))
 
 from nltk.tokenize import sent_tokenize
-import nltk
 from services.qdrant import insert_vectors, create_collection
 from services.log import log_vectorisation
 from services.config import EMBED_BGE_URL, EMBED_E5_URL, QDRANT_URL, COLLECTION_NAME, VECTOR_SIZE
 import httpx
-import numpy as np
-import uuid
 import re
 from qdrant_client import QdrantClient,models
 import json
@@ -29,7 +26,7 @@ chunk_150 = "chunk_150"
 chunk_100 = "chunk_100"
 chunk_50 = "chunk_50"
 
-# chemins relatifs au fichier, pas au repertoire courant
+# chemins relatifs aux fichiers
 DATA = BACKEND / "data"
 plaquette_institutionnelle = str(DATA / "plaquette_institutionnelle.txt")
 page_de_base = str(DATA / "page_de_base.json")
