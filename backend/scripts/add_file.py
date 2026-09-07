@@ -59,6 +59,12 @@ def sentence_chunk(text, max_words=50):
 
     if buffer:
         chunks.append(" ".join(buffer))
+        
+    for i, c in enumerate(chunks):
+        size = len(c.split())
+        if size > max_words:
+            print(f"ALERTE : chunk {i} dépasse le seuil ({size} > {max_words} mots)")
+
     return chunks
 
 def transform_text_to_embedding(texte:str)->list[float]:
@@ -139,6 +145,7 @@ def page_de_base_to_qdrant(my_coll:str,vector_size:int, max_word:int):
                     "chunk_size": chunk_size
                 }
             })
+    
 
     insert_vectors(points,my_coll)
     log_vectorisation("page_de_base", len(points), time.perf_counter() - debut)
