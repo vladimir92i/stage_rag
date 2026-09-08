@@ -12,6 +12,8 @@ import logging
 from datetime import date
 from pathlib import Path
 
+from services.config import EMBEDDING_MODEL, VECTOR_SIZE
+
 DOSSIER_LOGS = Path(__file__).resolve().parent.parent / "logs"
 DOSSIER_LOGS.mkdir(parents=True, exist_ok=True)
 FICHIER_LOG = DOSSIER_LOGS / f"vectorisation_{date.today().isoformat()}.log"
@@ -30,8 +32,9 @@ def log_vectorisation(source: str, nb_chunks: int, duree: float):
     """Trace un appel de vectorisation : d'où viennent les chunks,
     combien il y en avait, et combien de temps le calcul a pris."""
     logger.info(
-        "vectorisation | source=%s | chunk=%d | duree=%.3fs",
-        source, nb_chunks, duree,
+        "vectorisation | source=%s | modele=%s | dimension=%d "
+        "| chunks=%d | duree=%.3fs",
+        source, EMBEDDING_MODEL, VECTOR_SIZE, nb_chunks, duree,
     )
 
 

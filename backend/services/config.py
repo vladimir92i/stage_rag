@@ -15,10 +15,11 @@ API_EMBEDDING_URL = f"http://{API_EMBEDDING_HOST}:{API_EMBEDDING_PORT}"
 
 EMBED_BGE_URL = f"{API_EMBEDDING_URL}/embed/bge"
 EMBED_E5_URL = f"{API_EMBEDDING_URL}/embed/e5"
+EMBEDDING_MODEL = "BAAI/bge-m3"
 
 # --- Base vectorielle Qdrant ---
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
-COLLECTION_NAME = os.getenv("QDRANT_COLLECTION", "bge-m3")
+COLLECTION_NAME = os.getenv("QDRANT_COLLECTION", "bge-m3-test")
 VECTOR_SIZE = int(os.getenv("VECTOR_SIZE", "1024"))
 
 # --- Génération (Ollama) ---
